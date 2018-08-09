@@ -14,5 +14,8 @@ spring:
             ddl-auto: update
         show-sql: true 
     thymeleaf:
-        cache: false 
+        cache: false
+        
+blogImgPath: E://my_project/Blog/src/main/webapp/static/upload/blogImg/
+blogImgUrl: /static/upload/blogImg/
     

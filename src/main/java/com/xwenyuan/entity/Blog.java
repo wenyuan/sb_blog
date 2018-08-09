@@ -57,6 +57,9 @@ public class Blog implements Serializable {
     private BlogType blogType;    // blog type
     
     @Transient
+    private Integer blogTypeId;    // not mapping to db: to query blogType entity
+    
+    @Transient
     private String rawContent;    // not mapping to db: raw content, for lucene
     
     @Transient
@@ -64,9 +67,6 @@ public class Blog implements Serializable {
     
     @Transient
     private String releaseDateStr;    // without mapping to db: year and month
-    
-    @Transient
-    private List<String> imagesList=new LinkedList<String>();    // without mapping to db: blog pic, show in blog list
 
     public Integer getId() {
         return id;
@@ -140,6 +140,14 @@ public class Blog implements Serializable {
         this.blogType = blogType;
     }
 
+    public Integer getBlogTypeId() {
+        return blogTypeId;
+    }
+
+    public void setBlogTypeId(Integer blogTypeId) {
+        this.blogTypeId = blogTypeId;
+    }
+
     public String getRawContent() {
         return rawContent;
     }
@@ -162,14 +170,6 @@ public class Blog implements Serializable {
 
     public void setReleaseDateStr(String releaseDateStr) {
         this.releaseDateStr = releaseDateStr;
-    }
-
-    public List<String> getImagesList() {
-        return imagesList;
-    }
-
-    public void setImagesList(List<String> imagesList) {
-        this.imagesList = imagesList;
     }
 
 }

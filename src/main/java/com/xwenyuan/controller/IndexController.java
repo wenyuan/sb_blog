@@ -23,5 +23,23 @@ public class IndexController {
         mav.setViewName("index");
         return mav;
     }
+    
+    /**
+     * login request
+     * @return
+     */
+    @RequestMapping("/login")
+    public String login() {
+        return "/login";
+    }
+    
+    /**
+     * enter background management request
+     * @return
+     */
+    @RequestMapping("/admin")
+    public String toAdmin() {
+        return "/admin/main";
+    }
 
 }
