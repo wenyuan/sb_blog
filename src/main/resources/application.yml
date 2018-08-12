@@ -16,6 +16,6 @@ spring:
     thymeleaf:
         cache: false
         
-blogImgPath: E://my_project/Blog/src/main/webapp/static/upload/blogImg/
+blogImgPath: E://my_project/blog/src/main/webapp/static/upload/blogImg/
 blogImgUrl: /static/upload/blogImg/
     
