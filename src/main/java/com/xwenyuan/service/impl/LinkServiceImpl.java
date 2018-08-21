@@ -32,4 +32,14 @@ public class LinkServiceImpl implements LinkService{
         return linkRepository.count();
     }
 
+    @Override
+    public void save(Link link) {
+        linkRepository.save(link);
+    }
+
+    @Override
+    public void delete(Integer id) {
+        linkRepository.deleteById(id);
+    }
+
 }

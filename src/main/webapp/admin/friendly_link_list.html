@@ -24,7 +24,7 @@
     </span>
 </div>
 <div class="x-body">
-    <form class="layui-form x-center" action="" style="width: 70%">
+    <form class="layui-form x-center" id="add-link-form" action="" style="width: 70%">
         <div class="layui-form-pane" style="margin-top: 15px;">
             <div class="layui-form-item">
                 <label class="layui-form-label">链接名</label>
@@ -51,14 +51,45 @@
     </xblock>
     <table id="link-table" lay-filter="link-table"></table>
     <script type="text/html" id="table-toolbar">
-        <a title="编辑" href="javascript:;" onclick="link_edit('编辑','link-edit.html','4','','510')" class="ml-5" style="text-decoration: none">
+        <a title="编辑" href="javascript:;" lay-event="editLink" style="text-decoration: none">
             <i class="layui-icon">&#xe642;</i>
         </a> 
-        <a title="删除" href="javascript:;" onclick="link_del(this,'1')" style="text-decoration: none">
+        <a title="删除" href="javascript:;" lay-event="deleteLinks" style="text-decoration: none">
             <i class="layui-icon">&#xe640;</i>
         </a>
     </script>
-
+</div>
+<div id="edit-dialog" style="display:none">
+    <form class="layui-form" id="edit-link-form">
+        <div class="layui-form-item">
+            <label for="name" class="layui-form-label">
+                <span class="x-red">*</span>链接名
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="edit-linkName" name="linkName" required="" lay-verify="required" autocomplete="off"  value="百度" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="link" class="layui-form-label">
+                <span class="x-red">*</span>URL
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="edit-linkUrl" name="linkUrl" required="" lay-verify="required" autocomplete="off" value="http://www.baidu.com" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="sort" class="layui-form-label">
+                <span class="x-red">*</span>排序
+            </label>
+            <div class="layui-input-inline">
+                <input type="number" id="edit-orderNo" name="orderNo" required="" lay-verify="required" autocomplete="off" value="5" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label for="L_repass" class="layui-form-label"></label>
+            <button class="layui-btn" id="do-edit" type="button">保存</button>
+        </div>
+    </form>
 </div>
 <script type="text/javascript" src="/static/jquery/jquery-3.3.1.min.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/layui/layui.js" charset="utf-8"></script>
@@ -73,27 +104,81 @@ layui.use(['element','laypage','layer','form','table'], function(){
     var table = layui.table;    // 渲染表格
     
     table.render({
-    	elem: '#link-table'
-        ,url: '/admin/link/list'
-        ,response: {
-        	statusCode: 200
-        	,countName: 'total'
-        	,dataName: 'data'
-        }
-        ,page: true
-        ,cols: [[
-        	{checkbox: true, width:90}
-          ,{field: 'id', title: '编号', align:'center', width:100, sort: true}
-          ,{field: 'linkName', title: '链接名', align:'center'}
-          ,{field: 'linkUrl', title: '链接地址', align:'center'}
-          ,{field: 'orderNo', title: '排序', align:'center', width:100, sort: true} 
-          ,{fixed: 'right', title: '操作', align:'center', width:200, toolbar: '#table-toolbar'}
+    	elem: '#link-table',
+        url: '/admin/link/list',
+        response: {
+        	statusCode: 200,
+        	countName: 'total',
+        	dataName: 'data'
+        },
+        page: true,
+        cols: [[
+        	{checkbox: true, width:90},
+        	{field: 'id', title: '编号', align:'center', width:100, sort: true},
+        	{field: 'linkName', title: '链接名', align:'center'},
+        	{field: 'linkUrl', title: '链接地址', align:'center'},
+        	{field: 'orderNo', title: '排序', align:'center', width:100, sort: true}, 
+        	{fixed: 'right', title: '操作', align:'center', width:200, toolbar: '#table-toolbar'}
         ]]
       });
     
+    table.on('tool(link-table)', function(obj){
+    	var currentRowData = obj.data; //获得当前行数据
+        var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+        var tr = obj.tr; //获得当前行 tr 的DOM对象
+        console.log(currentRowData)
+    	  if (layEvent === 'editLink') {
+    		  layer.open({
+    			  type: 1,
+    			  area: ['600px', '350px'],
+    		      offset: ['100px', '250px'],
+    			  title: '编辑',
+    			  content: $('#edit-dialog'),
+    			  success: function(layero, index) {
+    				  console.log('open')
+    				  $("#edit-linkName").prop("value",currentRowData['linkName']);
+    				  $("#edit-linkUrl").prop("value",currentRowData['linkUrl']);
+    				  $("#edit-orderNo").prop("value",currentRowData['orderNo']);
+    			  }
+    			});
+    		  $("#do-edit").click(function(){
+    			  var params = {}
+    			  $('#edit-link-form').serializeArray().forEach(function (item) {
+    				  params[item.name] = item.value
+    			  });
+    			  params["id"] = currentRowData["id"]
+    			  $.ajax({
+    				  url: "/admin/link/save",
+    		          type: "POST",
+    		          dataType : "JSON",
+    		          contentType: "application/json",
+    		          data: JSON.stringify(params),
+    		          success: function(result) {
+    		        	  if (result.success) {
+    		        		  layer.alert("编辑成功！", {icon: 6});
+    		        		  layer.closeAll();
+    		        		  // 同步更新缓存对应的值
+    		                  obj.update({
+    		                    username: '123'
+    		                    ,title: 'xxx'
+    		                  });
+    		        	  } else {
+    		        		  layer.alert("编辑失败！", {icon: 5});
+    		              }
+    		          }
+    			  }); 
+    		  });
+    	  } else if(layEvent === 'deleteLinks'){ //删除
+    		  layer.confirm('确认要删除吗？', function(index) {
+    			  $(obj).parents("tr").remove();
+    			  layer.msg('已删除!', {icon : 1,time : 1000});
+   			  }); 
+    	  }
+    });
+    
     $("#addLink").click(function(){
     	var params = {}
-        $('form').serializeArray().forEach(function (item) {
+        $('#add-link-form').serializeArray().forEach(function (item) {
           params[item.name] = item.value
         });
         var htmlContent = CKEDITOR.instances.content.getData();
@@ -115,30 +200,8 @@ layui.use(['element','laypage','layer','form','table'], function(){
             }
         }); 
     });
-    
-    // 批量删除提交
-    function delAll() {
-    	layer.confirm('确认要删除吗？', function(index) {
-            // 捉到所有被选中的，发异步进行删除
-            layer.msg('删除成功', {icon : 1});
-        });
-    }
-
-    // 用户-编辑
-    function link_edit(title, url, id, w, h) {
-    	x_admin_show(title, url, w, h);
-    }
-
-    // 删除
-    function link_del(obj, id) {
-    	layer.confirm('确认要删除吗？', function(index) {
-            //发异步删除数据
-            $(obj).parents("tr").remove();
-            layer.msg('已删除!', {icon : 1,time : 1000});
-        });	
-    }
- 
 });
+  
 </script>
 </body>
 </html>

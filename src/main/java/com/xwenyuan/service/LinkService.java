@@ -24,5 +24,17 @@ public interface LinkService {
      * @return
      */
     public Long getCount();
+    
+    /**
+     * add or update link
+     * @param link
+     */
+    public void save(Link link);
+    
+    /**
+     * delete link by id
+     * @param id
+     */
+    public void delete(Integer id);
 
 }
